@@ -1,0 +1,19 @@
+[package]
+name = "kubernetes-audit-log-explorer"
+version = "0.1.0"
+edition = "2021"
+
+[[bin]]
+name = "kale"
+path = "src/main.rs"
+
+[dependencies]
+anyhow = "1.0.86"
+chrono = { version = "0.4", features = ["serde"] }
+crossterm = { version = "0.27", features = ["event-stream", "use-dev-tty"] }
+ratatui = "0.27"
+futures = "0.3"
+serde = { version = "1.0", features = ["derive"] }
+serde_json = "1.0"
+tokio = { version = "1.38.0", features = ["rt-multi-thread", "macros", "sync", "time"] }
+uuid = { version = "1.9", features = ["serde"] }
