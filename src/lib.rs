@@ -16,17 +16,9 @@ use ratatui::{
 };
 use std::io::{stdout, Stdout};
 
-#[derive(Debug, PartialEq)]
-enum View {
-    Events,
-    Filters,
-    Keybinds,
-}
-
 pub struct App {
     terminal: Terminal<CrosstermBackend<Stdout>>,
     events: Vec<EventV1>,
-    view: View,
     table_rows: Vec<[String; 3]>,
     table_state: TableState,
     scroll_position: u16,
@@ -44,7 +36,6 @@ impl App {
             terminal: Terminal::new(CrosstermBackend::new(stdout()))
                 .expect("failed to get stdout for terminal output"),
             events: Vec::new(),
-            view: View::Events,
             table_rows: Vec::new(),
             table_state: TableState::new(),
             scroll_position: 0,
@@ -94,18 +85,6 @@ impl App {
                         KeyCode::Down => self.next(),
                         KeyCode::PageUp => self.scroll_up(),
                         KeyCode::PageDown => self.scroll_down(),
-                        KeyCode::Char('f') => {
-                            self.view = match self.view {
-                                View::Filters => View::Events,
-                                _ => View::Filters,
-                            }
-                        }
-                        KeyCode::Char('?') => {
-                            self.view = match self.view {
-                                View::Keybinds => View::Events,
-                                _ => View::Keybinds,
-                            }
-                        }
                         _ => {}
                     };
                 }
@@ -120,11 +99,7 @@ impl App {
     }
 
     pub fn draw(&mut self) {
-        match self.view {
-            View::Events => self.draw_events(),
-            View::Filters => {}
-            View::Keybinds => {}
-        }
+        self.draw_events();
     }
 
     pub fn draw_events(&mut self) {
@@ -274,9 +249,6 @@ Source IPs:        {}
             })
             .expect("failed to draw frame");
     }
-
-    #[allow(dead_code)]
-    fn draw_filters(&mut self) {}
 
     fn previous(&mut self) {
         let index = self.table_state.selected().map(|i| i.saturating_sub(1));

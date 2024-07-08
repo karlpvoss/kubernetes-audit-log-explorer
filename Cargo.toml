@@ -1,7 +1,15 @@
 [package]
 name = "kubernetes-audit-log-explorer"
+description = "TUI for viewing Kubernetes Audit Logs"
 version = "0.1.0"
 edition = "2021"
+authors = ["Karl Voss <karl.p.voss@gmail.com>"]
+license = "MIT"
+readme = "README.md"
+homepage = "https://github.com/karlpvoss/kubernetes-audit-log-explorer"
+repository = "https://github.com/karlpvoss/kubernetes-audit-log-explorer"
+keywords = ["kubernetes", "audit", "logs", "tui"]
+categories = ["command-line-utilities"]
 
 [[bin]]
 name = "kale"
