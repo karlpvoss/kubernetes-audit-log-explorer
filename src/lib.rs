@@ -1,6 +1,7 @@
 pub mod kube;
 
 use self::kube::EventV1;
+use chrono::{DateTime, Utc};
 use crossterm::{
     self,
     event::{Event, KeyCode, KeyEvent},
@@ -14,11 +15,14 @@ use ratatui::{
     widgets::{Block, BorderType, Borders, Padding, Paragraph, Row, Table, TableState, Wrap},
     Terminal,
 };
-use std::io::{stdout, Stdout};
+use std::{
+    collections::BTreeMap,
+    io::{stdout, Stdout},
+};
 
 pub struct App {
     terminal: Terminal<CrosstermBackend<Stdout>>,
-    events: Vec<EventV1>,
+    events: BTreeMap<DateTime<Utc>, EventV1>,
     table_rows: Vec<[String; 3]>,
     table_state: TableState,
     scroll_position: u16,
@@ -35,7 +39,7 @@ impl App {
         Self {
             terminal: Terminal::new(CrosstermBackend::new(stdout()))
                 .expect("failed to get stdout for terminal output"),
-            events: Vec::new(),
+            events: BTreeMap::new(),
             table_rows: Vec::new(),
             table_state: TableState::new(),
             scroll_position: 0,
@@ -58,18 +62,26 @@ impl App {
     }
 
     pub fn handle_kube_event(&mut self, event: EventV1) {
-        self.events.push(event.clone());
-        let base_uri = event
-            .request_uri
-            .split('?')
-            .next()
-            .expect("iterator is valid")
-            .to_string();
-        self.table_rows.push([
-            event.request_received_timestamp.to_string(),
-            event.verb,
-            base_uri,
-        ]);
+        self.events.insert(event.request_received_timestamp, event);
+        self.table_rows = self
+            .events
+            .values()
+            .map(|e| {
+                let base_uri = e
+                    .request_uri
+                    .split('?')
+                    .next()
+                    .expect("iterator is valid")
+                    .to_string();
+
+                [
+                    e.request_received_timestamp.to_string(),
+                    e.verb.clone(),
+                    base_uri,
+                ]
+            })
+            .collect();
+
         if self.table_state.selected().is_none() {
             self.table_state.select(Some(0));
         }
@@ -106,7 +118,7 @@ impl App {
         self.terminal
             .draw(|frame| {
                 let i = self.table_state.selected();
-                let event = i.map(|i| &self.events[i]);
+                let event = i.and_then(|i| self.events.iter().nth(i).map(|(_dt, e)| e));
 
                 // frame
                 let frame_area = frame.size();
