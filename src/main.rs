@@ -37,9 +37,10 @@ async fn main() -> anyhow::Result<()> {
                     }
                     None => break,
                 }
-                app.draw();
             },
         };
+
+        app.draw();
     }
 
     app.tear_down();
