@@ -17,7 +17,6 @@ async fn main() -> anyhow::Result<()> {
 
     app.draw();
 
-    let mut interval = tokio::time::interval(std::time::Duration::from_millis(100));
     loop {
         let stdin_event = recv.recv();
         let term_event = terminal_events.next();
@@ -38,9 +37,6 @@ async fn main() -> anyhow::Result<()> {
                     }
                     None => break,
                 }
-                app.draw();
-            },
-            _ = interval.tick() => {
                 app.draw();
             },
         };
