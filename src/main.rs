@@ -22,8 +22,11 @@ async fn main() -> anyhow::Result<()> {
         let term_event = terminal_events.next();
 
         tokio::select! {
-            Some(kube_event) = stdin_event => {
-                app.handle_kube_event(kube_event);
+            Some(maybe_kube_event) = stdin_event => {
+                match maybe_kube_event {
+                    Ok(kube_event) => app.handle_kube_event(kube_event),
+                    Err(error) => app.set_error(error),
+                }
             },
             maybe_event = term_event => {
                 match maybe_event {
@@ -34,7 +37,7 @@ async fn main() -> anyhow::Result<()> {
                     }
                     None => break,
                 }
-            }
+            },
         };
 
         app.draw();
@@ -44,7 +47,8 @@ async fn main() -> anyhow::Result<()> {
     Ok(())
 }
 
-fn stdin_processor(send: mpsc::UnboundedSender<EventV1>) -> anyhow::Result<()> {
+#[allow(clippy::needless_pass_by_value)]
+fn stdin_processor(send: mpsc::UnboundedSender<anyhow::Result<EventV1>>) -> anyhow::Result<()> {
     let stdin = stdin();
     let stream = serde_json::Deserializer::from_reader(stdin).into_iter::<EventV1>();
 
@@ -58,11 +62,16 @@ fn stdin_processor(send: mpsc::UnboundedSender<EventV1>) -> anyhow::Result<()> {
                     continue;
                 }
 
-                send.send(event)?;
+                send.send(Ok(event))?;
             }
-            Err(_) => anyhow::bail!("stdin failed to deserialise"),
+            Err(err) => {
+                send.send(Err(err.into()))?;
+                anyhow::bail!("stdin failed to deserialise, quitting")
+            }
         }
     }
+
+    send.send(Err(anyhow::anyhow!("reached the end of stdin")))?;
 
     Ok(())
 }

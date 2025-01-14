@@ -72,23 +72,23 @@ pub struct ObjectReference {
 impl fmt::Display for ObjectReference {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         if let Some(namespace) = &self.namespace {
-            write!(f, "{}/", namespace)?;
+            write!(f, "{namespace}/")?;
         }
 
         if let Some(resource) = &self.resource {
-            write!(f, "{}/", resource)?;
+            write!(f, "{resource}/")?;
         }
 
         if let Some(name) = &self.name {
-            write!(f, "{}", name)?;
+            write!(f, "{name}")?;
         }
 
         if let Some(subresource) = &self.subresource {
-            write!(f, "/{}", subresource)?;
+            write!(f, "/{subresource}")?;
         }
 
         if let Some(uid) = &self.uid {
-            write!(f, " ({})", uid)?;
+            write!(f, " ({uid})")?;
         }
 
         Ok(())
@@ -120,9 +120,9 @@ pub struct StatusDetails {
 }
 
 #[derive(Debug, Deserialize, Clone)]
-#[serde(deny_unknown_fields)]
+#[serde(rename_all = "camelCase", deny_unknown_fields)]
 pub struct StatusCause {
-    _field: String,
+    _field: Option<String>,
     _message: String,
     _reason: String,
 }
