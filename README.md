@@ -12,22 +12,23 @@ $ cat data
 `kale` will accept them via stdin:
 
 ```shell
-$ kale < data
+kale < data
 ```
 
 or you can tail them in on the fly using a tool like [awslogs](https://github.com/jorgebastida/awslogs):
 
 ```shell
-$ awslogs get /aws/eks/YOUR-CLUSTER-LOG-GROUP 'kube-apiserver-audit.*' -G -S -s1h | kale
+awslogs get /aws/eks/YOUR-CLUSTER-LOG-GROUP 'kube-apiserver-audit.*' -G -S -s1h | kale
 ```
 
 ## Keybinds
 
-| Key                     | Effect                             |
-| ----------------------- | ---------------------------------- |
-| `ESC` or `Q`            | Quit                               |
-| `Up` and `Down`         | Scroll the list of logs            |
-| `PageUp` and `PageDown` | Scroll the Request/Response window |
+| Key                     | Effect                                     |
+|-------------------------|--------------------------------------------|
+| `ESC` or `Q`            | Quit                                       |
+| `Up` and `Down`         | Scroll the list of logs                    |
+| `PageUp` and `PageDown` | Scroll the list of logs faster             |
+| `j` and `k`             | Scroll the Request and Response info panes |
 
 ## Screenshots
 
