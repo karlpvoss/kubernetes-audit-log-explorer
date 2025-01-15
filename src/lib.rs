@@ -140,7 +140,11 @@ impl App {
                     ));
                     return;
                 }
-                let (event, _row) = self.events.values().nth(index).expect("we checked");
+                let (event, _row) = self
+                    .events
+                    .values()
+                    .nth(index + self.events_position)
+                    .expect("we checked");
 
                 // overall layout
                 let [table_area, info_area, req_res_area, infobox_area] = Layout::vertical([
