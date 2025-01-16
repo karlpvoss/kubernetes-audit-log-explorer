@@ -1,7 +1,7 @@
 [package]
 name = "kubernetes-audit-log-explorer"
 description = "TUI for viewing Kubernetes Audit Logs"
-version = "0.3.0"
+version = "0.3.1"
 edition = "2021"
 authors = ["Karl Voss <karl.p.voss@gmail.com>"]
 license = "MIT"
@@ -16,17 +16,17 @@ name = "kale"
 path = "src/main.rs"
 
 [dependencies]
-anyhow = "1.0.86"
+anyhow = "1"
 chrono = { version = "0.4", features = ["serde"] }
 crossterm = { version = "0.27", features = ["event-stream", "use-dev-tty"] }
 ratatui = "0.29"
 futures = "0.3"
-serde = { version = "1.0", features = ["derive"] }
-serde_json = "1.0"
-tokio = { version = "1.38.0", features = [
+serde = { version = "1", features = ["derive"] }
+serde_json = "1"
+tokio = { version = "1", features = [
     "rt-multi-thread",
     "macros",
     "sync",
     "time",
 ] }
-uuid = { version = "1.9", features = ["serde"] }
+uuid = { version = "1", features = ["serde"] }
