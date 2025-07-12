@@ -129,22 +129,20 @@ impl App {
                 let inner = frame_block.inner(frame_area);
                 frame.render_widget(frame_block, frame_area);
 
-                let index = self.table_state.selected();
-                if index.is_none() {
+                // if index is None, we have nothing to draw.
+                let Some(offset) = self.table_state.selected() else {
                     return;
-                }
-                let index = index.expect("we checked");
+                };
+                // factor in the offset from the events window when getting the index
+                let index = self.events_position + offset;
+                // check that index is in range
                 if !(0..self.events.len()).contains(&index) {
                     self.infobox = Some(format!(
                         "attempted to access event #{index} which we don't have",
                     ));
                     return;
                 }
-                let (event, _row) = self
-                    .events
-                    .values()
-                    .nth(index + self.events_position)
-                    .expect("we checked");
+                let (event, _row) = self.events.values().nth(index).expect("we checked");
 
                 // overall layout
                 let [table_area, info_area, req_res_area, infobox_area] = Layout::vertical([
@@ -203,13 +201,21 @@ impl App {
     }
 
     fn next(&mut self, by: usize) {
-        if let Some(index) = self.table_state.selected() {
-            let num_events = self.events.len();
-            if index == NUM_TABLE_ROWS - 1 {
-                self.events_position = (self.events_position + by).min(num_events - NUM_TABLE_ROWS);
-            } else {
-                self.table_state
-                    .select(Some((index + by).min(num_events - 1)));
+        let num_events = self.events.len();
+
+        // this is a bit jank, but this is ensuring that we first saturate event_pane_offset (self.table_state.select())
+        // before we move the self.events_position, which is the overall offset within the "list" of Events.
+        for _ in 0..by {
+            if let Some(event_pane_offset) = self.table_state.selected() {
+                if event_pane_offset == NUM_TABLE_ROWS - 1 {
+                    // if at the bottom of the event pane, move the event position
+                    self.events_position =
+                        (self.events_position + 1).min(num_events - NUM_TABLE_ROWS);
+                } else {
+                    // if not at the bottom of the event pane, move the event pane offset.
+                    self.table_state
+                        .select(Some((event_pane_offset + 1).min(num_events - 1)));
+                }
             }
         }
 
